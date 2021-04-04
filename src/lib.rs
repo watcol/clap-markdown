@@ -21,6 +21,23 @@ impl Generator for Markdown {
         format!("{}.md", name)
     }
 
+    // TODO. To support:
+    // General:
+    // -[ ] name
+    // -[ ] bin_name
+    // -[ ] version (render_version?)
+    // -[ ] author (missing)
+    // -[ ] about
+    // -[ ] long_about (rc)
+    // Arguments:
+    // -[ ] flags_with_no_heading
+    // -[ ] opts_with_no_heading
+    // -[ ] positionals
+    // -[ ] arg_conflicts_with
+    // Subcommands:
+    // -[ ] long_flag
+    // -[ ] short_flag
+    // -[ ] visible_aliases
     fn generate(app: &App, buf: &mut dyn Write) {
         w!(buf, "{}", app);
     }
