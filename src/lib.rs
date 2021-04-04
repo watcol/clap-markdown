@@ -21,25 +21,112 @@ impl Generator for Markdown {
         format!("{}.md", name)
     }
 
-    // TODO. To support:
-    // General:
-    // -[ ] name
-    // -[ ] bin_name
-    // -[ ] version (render_version?)
-    // -[ ] author (missing)
-    // -[ ] about
-    // -[ ] long_about (rc)
-    // Arguments:
-    // -[ ] flags_with_no_heading
-    // -[ ] opts_with_no_heading
-    // -[ ] positionals
+    // # TODO
+    // ## App
+    // -[x] name
+    // -[x] bin_name
+    // -[x] about
+    // -[x] flags_with_no_heading
+    // -[x] opts_with_no_heading
+    // -[x] positionals
     // -[ ] arg_conflicts_with
-    // Subcommands:
+    // -[ ] version (missong)
+    // -[ ] author (missing)
+    // -[ ] long_about (missing)
     // -[ ] long_flag
     // -[ ] short_flag
     // -[ ] visible_aliases
+    // ## Arguments
+    // -[x] name
+    // -[x] about
+    // -[x] short
+    // -[x] long
+    // -[ ] required (missing)
+    // -[ ] multiple (missing)
     fn generate(app: &App, buf: &mut dyn Write) {
-        w!(buf, "{}", app);
+        // Header
+        let name = app.get_name();
+        let about = app.get_about();
+        let bin_name = app.get_bin_name();
+        let flags = app.get_flags_with_no_heading().collect::<Vec<_>>();
+        let have_flags = !flags.is_empty();
+        let opts = app.get_opts_with_no_heading().collect::<Vec<_>>();
+        let have_opts = !opts.is_empty();
+        let args = app.get_positionals().collect::<Vec<_>>();
+        let have_args = !args.is_empty();
+        w!(buf, "# {}\n", name);
+        if let Some(about) = about {
+            w!(buf, "{}\n", about);
+        }
+        w!(buf, "\n");
+
+        // Usage
+        w!(buf, "## Usage\n```");
+        w!(buf, "{}", bin_name.unwrap_or(name));
+        if have_flags {
+            w!(buf, " [flags...]");
+        }
+        if have_opts {
+            w!(buf, " [options...]");
+        }
+        for arg in args.iter() {
+            w!(buf, " <{}>", arg.get_name());
+        }
+        w!(buf, "```\n\n");
+
+        // Flags
+        if have_flags {
+            w!(buf, "## Flags\n");
+        }
+        for flag in flags.iter() {
+            let about = flag.get_about();
+            let short = flag.get_short();
+            let long = flag.get_long();
+            if let Some(short) = short {
+                w!(buf, "***-{}***, ", short);
+            }
+            if let Some(long) = long {
+                w!(buf, "***--{}***", long);
+            }
+            w!(buf, "  \n");
+            if let Some(about) = about {
+                w!(buf, "<p style=\"text-indent:1em\">{}</p>\n\n", about);
+            }
+        }
+
+        // Options
+        if have_opts {
+            w!(buf, "## Options\n");
+        }
+        for opt in opts.iter() {
+            let name = opt.get_name();
+            let about = opt.get_about();
+            let short = opt.get_short();
+            let long = opt.get_long();
+            if let Some(short) = short {
+                w!(buf, "***-{}***, ", short);
+            }
+            if let Some(long) = long {
+                w!(buf, "***--{}=\\<{}\\>***", long, name);
+            }
+            w!(buf, "  \n");
+            if let Some(about) = about {
+                w!(buf, "<p style=\"text-indent:1em\">{}</p>\n\n", about);
+            }
+        }
+
+        // Arguments
+        if have_args {
+            w!(buf, "## Arguments\n");
+        }
+        for arg in args.iter() {
+            let name = arg.get_name();
+            let about = arg.get_about();
+            w!(buf, "***\\<{}\\>***  \n", name);
+            if let Some(about) = about {
+                w!(buf, "<p style=\"text-indent:1em\">{}</p>\n\n", about);
+            }
+        }
     }
 }
 
