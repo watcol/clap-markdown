@@ -1,0 +1,21 @@
+[package]
+name = "clap-markdown"
+version = "0.1.0-beta"
+description = "clap_generate implementation for markdown."
+authors = ["watcol <potfman@gmail.com>"]
+repository = "https://github.com/watcol/clap-markdown"
+keywords = ["clap", "clap_generate", "markdown"]
+categories = ["command-line-interface"]
+license = "MIT"
+readme = "README.md"
+edition = "2018"
+
+include = [
+  "README.md",
+  "Cargo.toml",
+  "src/**/*.rs"
+]
+
+[dependencies]
+clap = "3.0.0-beta"
+clap_generate = "3.0.0-beta"
