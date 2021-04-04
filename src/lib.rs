@@ -35,10 +35,10 @@ pub fn write_markdown<S: Into<String>>(app: &mut App, bin_name: S, buf: &mut dyn
 pub fn to_markdown<S: Into<String>>(
     app: &mut App,
     bin_name: S,
-) -> Result<String, std::string::FromUtf8Error> {
+) -> String {
     let mut buf = Vec::new();
     write_markdown(app, bin_name, &mut buf);
-    String::from_utf8(buf)
+    String::from_utf8_lossy(&buf).into_owned()
 }
 
 /// Write markdown to specified dir. (Wraps `clap_generate::generate_to`.)
