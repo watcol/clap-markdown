@@ -2,7 +2,7 @@
 extern crate clap;
 extern crate clap_generate;
 
-use clap::App;
+use clap::{App, Arg};
 use clap_generate::Generator;
 use std::io::Write;
 
@@ -44,7 +44,6 @@ impl Generator for Markdown {
     // -[ ] required (missing)
     // -[ ] multiple (missing)
     fn generate(app: &App, buf: &mut dyn Write) {
-        // Header
         let name = app.get_name();
         let about = app.get_about();
         let bin_name = app.get_bin_name();
@@ -54,6 +53,8 @@ impl Generator for Markdown {
         let have_opts = !opts.is_empty();
         let args = app.get_positionals().collect::<Vec<_>>();
         let have_args = !args.is_empty();
+
+        // Header
         w!(buf, "# {}\n", name);
         if let Some(about) = about {
             w!(buf, "{}\n", about);
@@ -88,58 +89,68 @@ impl Generator for Markdown {
         }
         w!(buf, "```\n\n");
 
-        // Flags
-        if have_flags {
-            w!(buf, "## Flags\n");
-        }
-        for flag in flags.iter() {
-            let about = flag.get_about();
-            let short = flag.get_short();
-            let long = flag.get_long();
-            if let Some(short) = short {
-                w!(buf, "***-{}***, ", short);
-            }
-            if let Some(long) = long {
-                w!(buf, "***--{}***", long);
-            }
-            w!(buf, "  \n");
-            if let Some(about) = about {
-                w!(buf, "<p style=\"text-indent:1em\">{}</p>\n\n", about);
-            }
-        }
+        write_flags(buf, flags.as_slice());
+        write_opts(buf, opts.as_slice());
+        write_args(buf, args.as_slice());
+    }
+}
 
-        // Options
-        if have_opts {
-            w!(buf, "## Options\n");
+fn write_flags(buf: &mut dyn Write, flags: &[&Arg<'_>]) {
+    if flags.is_empty() {
+        return;
+    }
+    w!(buf, "## Flags\n");
+    for flag in flags.iter() {
+        let about = flag.get_about();
+        let short = flag.get_short();
+        let long = flag.get_long();
+        if let Some(short) = short {
+            w!(buf, "***-{}***, ", short);
         }
-        for opt in opts.iter() {
-            let name = opt.get_name();
-            let about = opt.get_about();
-            let short = opt.get_short();
-            let long = opt.get_long();
-            if let Some(short) = short {
-                w!(buf, "***-{}***, ", short);
-            }
-            if let Some(long) = long {
-                w!(buf, "***--{}=\\<{}\\>***", long, name);
-            }
-            w!(buf, "  \n");
-            if let Some(about) = about {
-                w!(buf, "<p style=\"text-indent:1em\">{}</p>\n\n", about);
-            }
+        if let Some(long) = long {
+            w!(buf, "***--{}***", long);
         }
+        w!(buf, "  \n");
+        if let Some(about) = about {
+            w!(buf, "<p style=\"text-indent:1em\">{}</p>\n\n", about);
+        }
+    }
+}
 
-        // Arguments
-        if have_args {
-            w!(buf, "## Arguments\n");
+fn write_opts(buf: &mut dyn Write, opts: &[&Arg<'_>]) {
+    if opts.is_empty() {
+        return;
+    }
+    w!(buf, "## Options\n");
+    for opt in opts.iter() {
+        let name = opt.get_name();
+        let about = opt.get_about();
+        let short = opt.get_short();
+        let long = opt.get_long();
+        if let Some(short) = short {
+            w!(buf, "***-{}***, ", short);
         }
-        for arg in args.iter() {
-            let name = arg.get_name();
-            let about = arg.get_about();
-            w!(buf, "***\\<{}\\>***  \n", name);
-            if let Some(about) = about {
-                w!(buf, "<p style=\"text-indent:1em\">{}</p>\n\n", about);
-            }
+        if let Some(long) = long {
+            w!(buf, "***--{}=\\<{}\\>***", long, name);
+        }
+        w!(buf, "  \n");
+        if let Some(about) = about {
+            w!(buf, "<p style=\"text-indent:1em\">{}</p>\n\n", about);
+        }
+    }
+}
+
+fn write_args(buf: &mut dyn Write, args: &[&Arg<'_>]) {
+    if args.is_empty() {
+        return;
+    }
+    w!(buf, "## Arguments\n");
+    for arg in args.iter() {
+        let name = arg.get_name();
+        let about = arg.get_about();
+        w!(buf, "***\\<{}\\>***  \n", name);
+        if let Some(about) = about {
+            w!(buf, "<p style=\"text-indent:1em\">{}</p>\n\n", about);
         }
     }
 }
