@@ -60,6 +60,20 @@ impl Generator for Markdown {
         }
         w!(buf, "\n");
 
+        // Table of Contents
+        w!(buf, "## Table of Contents\n");
+        w!(buf, "- [Usage](#usage)\n");
+        if have_flags {
+            w!(buf, "- [Flags](#flags)\n");
+        }
+        if have_opts {
+            w!(buf, "- [Options](#options)\n");
+        }
+        if have_args {
+            w!(buf, "- [Arguments](#arguments)\n");
+        }
+        w!(buf, "\n");
+
         // Usage
         w!(buf, "## Usage\n```");
         w!(buf, "{}", bin_name.unwrap_or(name));
